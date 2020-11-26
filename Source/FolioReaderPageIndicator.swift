@@ -11,8 +11,8 @@ import UIKit
 class FolioReaderPageIndicator: UIView {
     var pagesLabel: UILabel!
     var minutesLabel: UILabel!
-    var totalMinutes: Int!
-    var totalPages: Int!
+    var totalMinutes: Int = 0
+    var totalPages: Int = 0
     var currentPage: Int = 1 {
         didSet { self.reloadViewWithPage(self.currentPage) }
     }
@@ -87,15 +87,15 @@ class FolioReaderPageIndicator: UIView {
     }
 
     fileprivate func reloadViewWithPage(_ page: Int) {
-        let pagesRemaining = self.folioReader.needsRTLChange ? totalPages-(totalPages-page+1) : totalPages-page
-
+        var pagesRemaining = self.folioReader.needsRTLChange ? totalPages-(totalPages-page+1) : totalPages-page
+        if pagesRemaining < 0 { pagesRemaining = 0 }
         if pagesRemaining == 1 {
             pagesLabel.text = " " + self.readerConfig.localizedReaderOnePageLeft
         } else {
             pagesLabel.text = " \(pagesRemaining) " + self.readerConfig.localizedReaderManyPagesLeft
         }
 
-        let minutesRemaining = Int(ceil(CGFloat((pagesRemaining * totalMinutes)/totalPages)))
+        let minutesRemaining = totalPages > 0 ? Int(ceil(CGFloat((pagesRemaining * totalMinutes)/totalPages))) : 0
         if minutesRemaining > 1 {
             minutesLabel.text = "\(minutesRemaining) " + self.readerConfig.localizedReaderManyMinutes+" ·"
         } else if minutesRemaining == 1 {
